@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Busqueda Avanzada</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <a href="index.html">Busqueda</a>
+    </div>
+    <div class="container">
+        <h1>Busqueda Avanzada</h1>
+        <form action="https://www.google.com/search" method="GET" class="advanced-search-form">
+            <label>Find pages with... "all these words:"</label>
+            <input type="text" name="allintext" class="search-input">
+
+            <label>Find pages with... "this exact word or phrase:"</label>
+            <input type="text" name="exactphrase" class="search-input">
+
+            <label>Find pages with... "any of these words:"</label>
+            <input type="text" name="anyintext" class="search-input">
+
+            <label>Find pages with... "none of these words:"</label>
+            <input type="text" name="none" class="search-input">
+
+            <button type="submit" class="advanced-button">Advanced Search</button>
+        </form>
+    </div>
+</body>
+</html>

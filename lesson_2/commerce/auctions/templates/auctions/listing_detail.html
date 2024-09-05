@@ -1,0 +1,84 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h2 class="text-center">{{ listing.title }}</h2>
+        <h3 class="text-muted">
+            <div>
+                <strong>Category:</strong> {{ listing.category }}
+            </div>
+            <div>
+                <em>Owner:</em> {{ listing.owner }}
+            </div>
+        </h3>
+        <p><strong>The starting bid was:</strong> ${{ listing.starting_bid }}</p>
+        <p>{{ listing.description }}</p>
+        {% if highest_bid %}
+            <p><strong>Current Price: </strong>${{ highest_bid.amount }}</p>
+        {% else %}
+            <p><strong>Current Price:</strong> ${{ listing.starting_bid }}</p>
+        {% endif %}
+
+        <div class="mb-4">
+            {% if listing.image_url %}
+                <img src="{{ listing.image_url }}" alt="{{ listing.title }}" class="img-fluid" style="max-width: 100%; height: auto;">
+            {% else %}
+                <img src="/api/placeholder/400/320" alt="No image" class="img-fluid">
+            {% endif %}
+        </div>
+
+        <time class="text-muted">{{ listing.created_at }}</time>
+        {% if listing.is_active %}
+            {% if user.is_authenticated %}
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {% if listing in user.watchlist.all %}
+                        <button type="submit" name="add_to_watchlist">Remove from Watchlist</button>
+                    {% else %}
+                        <button type="submit" name="add_to_watchlist">Add to Watchlist</button>
+                    {% endif %}
+                </form>
+
+                <h2>Place a Bid</h2>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input type="number" name="amount" step="0.01" min="{{ listing.starting_bid }}" required>
+                    <button type="submit" name="place_bid">Place Bid</button>
+                </form>
+
+                {% if user == listing.owner %}
+                    <h2>Close Auction</h2>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <button type="submit" name="close_auction">Close Auction</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        {% else %}
+            <p>This auction is closed.</p>
+            {% if user.is_authenticated and user_won %}
+                <p>Congratulations! You won this auction.</p>
+            {% endif %}
+        {% endif %}
+
+    <h2>Comments</h2>
+    {% for comment in comments %}
+        <div>
+            <strong>{{ comment.user.username }}:</strong>
+            <p>{{ comment.text }}</p>
+            <time class="text-muted">{{ comment.created_at }}</time>
+        </div>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+        <h3>Add a Comment</h3>
+        <form method="post" action="">
+            {% csrf_token %}
+            <textarea name="comment" rows="4" cols="50" required></textarea>
+            <button type="submit" name="add_comment">Add Comment</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+    {% endif %}
+    </div>
+{% endblock %}
