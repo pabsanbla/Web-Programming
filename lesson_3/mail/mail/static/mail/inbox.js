@@ -41,11 +41,15 @@ function compose_email() {
         //Check for errors
         if (result.error) {
           alert(result.error);
+          compose_email();
         } else {
-          console.log(result.message);
+          alert(result.message);
           // Load the user sent mailbox only if it was send
           load_mailbox('sent');
         }
+    })
+    .catch(error => {
+      console.log('Error:', error); //any error charging the page
     })
   };
 }
@@ -60,31 +64,35 @@ function load_mailbox(mailbox) {
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-  // //show the mails from the mailbox
-  // fetch(`/emails/${mailbox}`)
-  // .then(response => response.json())
-  // .then(emails => {
-  // // Print emails in console
-  // console.log(emails);
-  // //Show the emails
-  // emails.forEach(email =>{
-  //   const emailDiv = document.createElement('div'); //creat the element div
-  //   //Color of the email
-  //   emailDiv.style.backgroundColor = 'white'; //Unread
-  //   if (email.read) {
-  //     emailDiv.style.backgroundColor = 'gray'; //Read
-  //   }
-  //   //Complete with information
-  //   emailDiv.innerHTML = `
-  //   <strong>From:</strong> ${email.sender}
-  //   <strong>Subject:</strong> ${email.subject}
-  //   <strong>Body:</strong> ${email.body}
-  //   `
-  //   })
-  // });
-  // .catch(error => {
-  //   alert(error);
-  // })
+  //show the mails from the mailbox
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(emails => {
+    //Print emails in console
+    console.log(emails);
+    document.querySelector('#emails-view').value = ''; //empty at the start
+    //Show the emails
+    emails.forEach(email =>{
+      const emailDiv = document.createElement('div'); //creat the element div
+      //Color of the email
+      if (email.read) {
+        emailDiv.style.backgroundColor = 'gray'; //Read
+      } else {
+        emailDiv.style.backgroundColor = 'white'; //Unread
+      }
+      //Complete with information
+      emailDiv.innerHTML = `
+      <strong>From:</strong> ${email.sender}
+      <strong>Subject:</strong> ${email.subject}
+      <strong>Body:</strong> ${email.body}
+      `
+      //Add to the view
+      document.querySelector('#emails-view').appendChild(emailDiv);
+      })
+    })
+  .catch(error => {
+    console.log('Error:', error); //any error in charging the page
+  })
 }
 
 
