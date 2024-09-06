@@ -38,14 +38,15 @@ function compose_email() {
     })
     .then(response => response.json())
     .then(result => {
-        // Print result in console
-        console.log(result);
-        // Load the user sent mailbox
-        load_mailbox('sent');
+        //Check for errors
+        if (result.error) {
+          alert(result.error);
+        } else {
+          console.log(result.message);
+          // Load the user sent mailbox only if it was send
+          load_mailbox('sent');
+        }
     })
-    .catch(error => {
-        alert(error);
-    });
   };
 }
 
