@@ -68,8 +68,6 @@ function load_mailbox(mailbox) {
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
-    //Print emails in console
-    console.log(emails);
     document.querySelector('#emails-view').value = ''; //empty at the start
     //Show the emails
     emails.forEach(email =>{
@@ -82,10 +80,14 @@ function load_mailbox(mailbox) {
       }
       //Complete with information
       emailDiv.innerHTML = `
-      <strong>From:</strong> ${email.sender}
-      <strong>Subject:</strong> ${email.subject}
-      <strong>Body:</strong> ${email.body}
+      <p><strong>From:</strong> ${email.sender}</p>
+      <p><strong>Subject:</strong> ${email.subject}</p>
+      <p><strong>Body:</strong> ${email.body}</p>
       `
+      //Check an specific email
+      emailDiv.addEventListener('click', () => {
+        view_email(email.id); //New function
+      });
       //Add to the view
       document.querySelector('#emails-view').appendChild(emailDiv);
       })
@@ -94,5 +96,41 @@ function load_mailbox(mailbox) {
     console.log('Error:', error); //any error in charging the page
   })
 }
+
+function view_email(id) {
+  // Show the email
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#selected-email').style.display = 'block';
+
+  // Use of GET
+  fetch(`/emails/${id}`)
+    .then(response => response.json())
+    .then(email => {
+      // Verify
+      console.log(email);
+      
+      // The content
+      document.querySelector('#selected-email').innerHTML = `
+        <p><strong>Sender:</strong> ${email.sender}</p>
+        <p><strong>Recipients:</strong> ${email.recipients}</p>
+        <p><strong>Subject:</strong> ${email.subject}</p>
+        <p><strong>Body:</strong> ${email.body}</p>
+        <p><small>Timestamp: ${email.timestamp}</small></p>
+      `;
+
+      // Mark as read
+      return fetch(`/emails/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          read: true
+        })
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+}
+
 
 
