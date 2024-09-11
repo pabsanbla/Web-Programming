@@ -71,30 +71,30 @@ function load_mailbox(mailbox) {
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
-    document.querySelector('#emails-view').value = ''; //empty at the start
     //Show the emails
     emails.forEach(email =>{
-      const emailDiv = document.createElement('div'); //creat the element div
+      const emailDiv = document.createElement('div'); //create the element div
       //Color of the email
-      if (email.read) {
-        emailDiv.style.backgroundColor = 'gray'; //Read
-      } else {
-        emailDiv.style.backgroundColor = 'white'; //Unread
-      }
+      emailDiv.style.backgroundColor = email.read ? 'gray' : 'white';
       //Complete with information
       emailDiv.innerHTML = `
-      <p><strong>From:</strong> ${email.sender}</p>
-      <p><strong>Subject:</strong> ${email.subject}</p>
-      <p><strong>Body:</strong> ${email.body}</p>
-      `
+      <strong>From:</strong> ${email.sender}<br>
+      <strong>Subject:</strong> ${email.subject}<br>
+      <small><strong>Timestamp:</strong> ${email.timestamp}</small>
+      `;      
       //Check an specific email
       emailDiv.addEventListener('click', () => {
-        view_email(email.id); //New function
+        view_email(email.id); //Allows to see the email
       });
       //Add to the view
       document.querySelector('#emails-view').appendChild(emailDiv);
-      })
+      //Button
+      if (mailbox === 'archive' || mailbox === 'inbox'){
+        button_function(mailbox, email.id);
+      }
+      console.log(email.archived); //show the result
     })
+  })
   .catch(error => {
     console.log('Error:', error); //any error in charging the page
   })
@@ -110,9 +110,6 @@ function view_email(id) {
   fetch(`/emails/${id}`)
     .then(response => response.json())
     .then(email => {
-      // Verify
-      console.log(email);
-      
       // The content
       document.querySelector('#selected-email').innerHTML = `
         <p><strong>Sender:</strong> ${email.sender}</p>
@@ -121,7 +118,6 @@ function view_email(id) {
         <p><strong>Body:</strong> ${email.body}</p>
         <p><small>Timestamp: ${email.timestamp}</small></p>
       `;
-
       // Mark as read
       return fetch(`/emails/${id}`, {
         method: 'PUT',
@@ -133,6 +129,23 @@ function view_email(id) {
     .catch(error => {
       console.error('Error:', error);
     });
+}
+
+function button_function(mailbox, id) {
+  const archive_button = document.createElement('button'); //create the element button for archive mails
+  archive_button.innerHTML = mailbox === 'archive' ? 'Unarchive' : 'Archive'; //select the html
+  archive_button.addEventListener('click', () => {
+    const is_archive = archive_button.innerHTML === 'Archive'; //boolean value: true = Unarchive, false = Archive
+    console.log(is_archive);
+    fetch(`/emails/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        archived: is_archive
+        })
+      });
+    });
+  //Add to the view
+  document.querySelector('#emails-view').appendChild(archive_button);
 }
 
 
