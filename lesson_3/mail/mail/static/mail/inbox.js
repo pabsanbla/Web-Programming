@@ -45,7 +45,6 @@ function compose_email() {
           alert(result.error);
           compose_email();
         } else {
-          alert(result.message);
           // Load the user sent mailbox only if it was send
           load_mailbox('sent');
         }
@@ -105,7 +104,6 @@ function view_email(id) {
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#selected-email').style.display = 'block';
 
-  // Use of GET
   fetch(`/emails/${id}`)
     .then(response => response.json())
     .then(email => {
@@ -116,7 +114,16 @@ function view_email(id) {
         <p><strong>Subject:</strong> ${email.subject}</p>
         <p><strong>Body:</strong> ${email.body}</p>
         <p><small>Timestamp: ${email.timestamp}</small></p>
+        <button id="reply-button">Reply</button>
       `;
+      //Reply button
+      document.querySelector('#reply-button').addEventListener('click', () =>{
+        compose_email();
+
+        document.querySelector('#compose-recipients').value = email.sender;
+        document.querySelector('#compose-subject').value = email.subject.startsWith("Re:") ? email.subject : `Re: ${email.subject}`;
+        document.querySelector('#compose-body').value = `On ${email.timestamp}, ${email.sender} wrote:\n${email.body}\n\n`;
+      })
       // Mark as read
       return fetch(`/emails/${id}`, {
         method: 'PUT',
@@ -135,6 +142,7 @@ function button_function(mailbox, id) {
   archive_button.innerHTML = mailbox === 'archive' ? 'Unarchive' : 'Archive'; //select the html
   archive_button.addEventListener('click', () => {
     const is_archive = archive_button.innerHTML === 'Archive'; //boolean value: true = Archive, false = Unarchive
+
     fetch(`/emails/${id}`, {
       method: 'PUT',
       body: JSON.stringify({
