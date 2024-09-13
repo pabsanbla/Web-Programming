@@ -92,7 +92,6 @@ function load_mailbox(mailbox) {
       if (mailbox === 'archive' || mailbox === 'inbox'){
         button_function(mailbox, email.id);
       }
-      console.log(email.archived); //show the result
     })
   })
   .catch(error => {
@@ -135,15 +134,21 @@ function button_function(mailbox, id) {
   const archive_button = document.createElement('button'); //create the element button for archive mails
   archive_button.innerHTML = mailbox === 'archive' ? 'Unarchive' : 'Archive'; //select the html
   archive_button.addEventListener('click', () => {
-    const is_archive = archive_button.innerHTML === 'Archive'; //boolean value: true = Unarchive, false = Archive
-    console.log(is_archive);
+    const is_archive = archive_button.innerHTML === 'Archive'; //boolean value: true = Archive, false = Unarchive
     fetch(`/emails/${id}`, {
       method: 'PUT',
       body: JSON.stringify({
         archived: is_archive
-        })
-      });
+      })
+    })
+    .then(() => {
+      // Charge after using the button
+      load_mailbox('inbox');
+    })
+    .catch(error => {
+      console.log('Error:', error); // General errors
     });
+  })
   //Add to the view
   document.querySelector('#emails-view').appendChild(archive_button);
 }
